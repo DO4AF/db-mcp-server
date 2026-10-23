@@ -8,7 +8,7 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from mcp_server import mcp
 from auth_server import init_auth_server
 from rate_limiter import check_rate_limit
-from config import CLOUD_RUN_URL, CUSTOM_DOMAIN
+from config import ALLOWED_HOSTS, CUSTOM_DOMAIN
 
 # The documentation shows that when mounting an MCP app, its session manager
 # must be run within the parent application's lifespan.
@@ -26,26 +26,9 @@ app = FastAPI(
 )
 
 # Add security middleware
-allowed_hosts = [
-    "localhost", 
-    "127.0.0.1"
-]
-
-# Add custom domain if configured
-if CUSTOM_DOMAIN:
-    allowed_hosts.append(CUSTOM_DOMAIN)
-
-# Add Cloud Run URL if configured (for load balancer routing)
-if CLOUD_RUN_URL:
-    # Extract hostname from URL
-    from urllib.parse import urlparse
-    cloud_run_hostname = urlparse(CLOUD_RUN_URL).netloc
-    if cloud_run_hostname:
-        allowed_hosts.append(cloud_run_hostname)
-
 app.add_middleware(
     TrustedHostMiddleware, 
-    allowed_hosts=allowed_hosts
+    allowed_hosts=ALLOWED_HOSTS
 )
 
 # Add CORS middleware - production security settings

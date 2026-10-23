@@ -1,5 +1,6 @@
 # config.py
 import os
+from urllib.parse import urlparse
 from dotenv import load_dotenv
 
 # --- Environment Configuration ---
@@ -86,6 +87,19 @@ def _get_cloud_run_url():
     return ""
 
 CLOUD_RUN_URL = _get_cloud_run_url()
+
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+if CUSTOM_DOMAIN:
+    ALLOWED_HOSTS.append(CUSTOM_DOMAIN)
+if CLOUD_RUN_URL:
+    cloud_run_hostname = urlparse(CLOUD_RUN_URL).hostname
+    if cloud_run_hostname:
+        ALLOWED_HOSTS.append(cloud_run_hostname)
+ALLOWED_HOSTS.extend(
+    host.strip()
+    for host in os.environ.get("ALLOWED_HOSTS", "").split(",")
+    if host.strip()
+)
 
 # --- API Base URLs ---
 BASE_URL_TIMETABLES = "https://apis.deutschebahn.com/db-api-marketplace/apis/timetables/v1"

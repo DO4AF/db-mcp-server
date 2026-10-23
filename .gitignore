@@ -81,5 +81,6 @@ service-account-key.json
 tmp/
 temp/
 test_*.py
+!tests/test_*.py
 debug_*.py
 *_test_report.*

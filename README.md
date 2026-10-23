@@ -330,6 +330,22 @@ docker run -p 8080:8080 \\
 # Server available at http://localhost:8080/mcp
 ```
 
+For access through a Docker service name or LAN address, set `ALLOWED_HOSTS`
+to the hostname or IP address used in the client's server URL, for example
+`ALLOWED_HOSTS=deutschebahn-mcp,192.168.16.10`. Use a comma-separated list without
+schemes, paths, or ports. Localhost, `CUSTOM_DOMAIN`, and the hostname from
+`CLOUD_RUN_URL` are also accepted. Recreate the container after changing its
+environment or rebuilding the image.
+
+An HTTP `400 Invalid host header` means the request hostname is not allowed.
+The client's source IP in the access log is not necessarily that hostname.
+Both FastAPI and the MCP transport validate the configured hosts.
+
+Connect using an MCP Streamable HTTP client at `http://localhost:8080/mcp`
+(replace the hostname for your deployment). `/mcp/openapi.json` does not exist.
+`/openapi.json` describes the FastAPI routes, not the MCP tools; an OpenAPI-only
+integration needs an MCP-to-OpenAPI adapter.
+
 ### Security Considerations
 
 - **Default deployment**: Uses Cloud Run's built-in HTTPS and allows access from the generated URL
@@ -468,6 +484,7 @@ See the `.env.example` file for comments on which credential goes where to avoid
 | `GCP_PROJECT_ID` | Your Google Cloud project ID                        | Required for cloud deployment. Auto-detected if not set.                    |
 | `CUSTOM_DOMAIN`  | Your custom domain for the deployed service         | Optional. Enables enhanced security for cloud deployment.                   |
 | `CLOUD_RUN_URL`  | The backend URL of the Cloud Run service            | Optional. Auto-detected in Cloud Run, only override if needed.              |
+| `ALLOWED_HOSTS`  | Additional accepted request hostnames or IP addresses | Optional. Comma-separated, without schemes or ports; used by FastAPI and MCP. |
 | `LOG_LEVEL`      | Logging level (DEBUG, INFO, WARNING, ERROR)         | Optional. Defaults to `INFO`.                                               |
 | `PORT`           | The port the server listens on                      | Optional. Defaults to `8080`.                                               |
 
