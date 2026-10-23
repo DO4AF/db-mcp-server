@@ -11,7 +11,8 @@ import functools
 import re
 from typing import Any, Dict, List, Tuple
 
-from mcp import McpError
+from mcp.shared.exceptions import McpError
+from mcp.types import ErrorData
 from config import DB_API_KEY, DB_API_SECRET, BASE_URL_STADA
 
 # --- Security & Validation ---
@@ -141,13 +142,13 @@ def tool_error_handler(func):
                 msg = "External service temporarily unavailable"
             else:
                 msg = f"External API error (HTTP {e.response.status_code})"
-            raise McpError(msg) from e
+            raise McpError(ErrorData(code=-32603, message=msg)) from e
         except ValueError as e:
             msg = f"Invalid parameter: {e}"
             logging.warning(msg)
-            raise McpError(msg) from e
+            raise McpError(ErrorData(code=-32602, message=msg)) from e
         except Exception as e:
             msg = f"An unexpected server error occurred: {type(e).__name__} - {e}"
             logging.error(msg, exc_info=True)
-            raise McpError(msg) from e
+            raise McpError(ErrorData(code=-32603, message=msg)) from e
     return wrapper
